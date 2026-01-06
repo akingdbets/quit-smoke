@@ -1,0 +1,98 @@
+{
+  "project_info": {
+    "project_number": "688933748440",
+    "project_id": "quit-smoke-naisu",
+    "storage_bucket": "quit-smoke-naisu.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:688933748440:android:11052b81c80bd67fd861ad",
+        "android_client_info": {
+          "package_name": "com.example.quit_smoke"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "688933748440-5045tu2q5pkuod2letr4hesb5g73ffd1.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.quit_smoke",
+            "certificate_hash": "9808bd134699c629924db6b18c3cb84c9e9a265e"
+          }
+        },
+        {
+          "client_id": "688933748440-263r49797dpp125agskh3hjf5f482i7l.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyA0P9PfQBkb7UmdS3EViSh5EDSo7PRgRuE"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "688933748440-263r49797dpp125agskh3hjf5f482i7l.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "688933748440-316bg0p8unc688jegmd207jkr3ajapgj.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.naisu.quitsmoke"
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:688933748440:android:0e2aaa178f3a5899d861ad",
+        "android_client_info": {
+          "package_name": "com.naisu.quitsmoke"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "688933748440-eeeeg9jkqsq22qmuhi696lbghe85ba3c.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.naisu.quitsmoke",
+            "certificate_hash": "9808bd134699c629924db6b18c3cb84c9e9a265e"
+          }
+        },
+        {
+          "client_id": "688933748440-263r49797dpp125agskh3hjf5f482i7l.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyA0P9PfQBkb7UmdS3EViSh5EDSo7PRgRuE"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "688933748440-263r49797dpp125agskh3hjf5f482i7l.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "688933748440-316bg0p8unc688jegmd207jkr3ajapgj.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.naisu.quitsmoke"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
