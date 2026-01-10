@@ -2,6 +2,8 @@ import 'package:flutter/foundation.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_sign_in/google_sign_in.dart';
+// 애플 로그인을 위한 패키지 임포트 (없어도 동작할 수 있으나 명시적으로 추가)
+import 'package:sign_in_with_apple/sign_in_with_apple.dart';
 import 'dart:async';
 import '../models/user_settings.dart';
 
@@ -16,7 +18,7 @@ class UserProvider extends ChangeNotifier {
   final GoogleSignIn _googleSignIn = GoogleSignIn(
     scopes: ['email', 'profile'],
   );
-  
+
   StreamSubscription<DocumentSnapshot>? _settingsSubscription;
   StreamSubscription<User?>? _authStateSubscription;
 
@@ -76,24 +78,21 @@ class UserProvider extends ChangeNotifier {
     _settingsSubscription?.cancel();
 
     // 새로운 사용자의 설정 구독
-    _settingsSubscription = _firestore
-        .collection(_collectionName)
-        .doc(userId)
-        .snapshots()
-        .listen(
+    _settingsSubscription =
+        _firestore.collection(_collectionName).doc(userId).snapshots().listen(
       (DocumentSnapshot snapshot) {
         if (snapshot.exists && snapshot.data() != null) {
           try {
             final data = snapshot.data() as Map<String, dynamic>;
             _settings = UserSettings.fromJson(data);
-            
+
             // startDate가 없으면 설정 화면 표시
             if (_settings.startDate == null) {
               _showSettings = true;
             } else {
               _showSettings = false;
             }
-            
+
             _isInitialized = true;
             notifyListeners();
           } catch (e) {
@@ -128,14 +127,15 @@ class UserProvider extends ChangeNotifier {
     try {
       // 구글 로그인 플로우 시작
       final GoogleSignInAccount? googleUser = await _googleSignIn.signIn();
-      
+
       if (googleUser == null) {
         // 사용자가 로그인 취소
         return null;
       }
 
       // 구글 인증 정보 가져오기
-      final GoogleSignInAuthentication googleAuth = await googleUser.authentication;
+      final GoogleSignInAuthentication googleAuth =
+          await googleUser.authentication;
 
       // Firebase 인증을 위한 credential 생성
       final credential = GoogleAuthProvider.credential(
@@ -144,10 +144,11 @@ class UserProvider extends ChangeNotifier {
       );
 
       // Firebase에 로그인
-      final UserCredential userCredential = await _auth.signInWithCredential(credential);
-      
+      final UserCredential userCredential =
+          await _auth.signInWithCredential(credential);
+
       // 로그인 성공 시 해당 사용자의 설정 자동 로드됨 (authStateChanges 리스너가 처리)
-      
+
       return userCredential;
     } catch (e) {
       debugPrint('구글 로그인 중 오류 발생: $e');
@@ -155,10 +156,28 @@ class UserProvider extends ChangeNotifier {
     }
   }
 
+  /// [추가됨] 애플 로그인
+  Future<UserCredential?> signInWithApple() async {
+    try {
+      // AppleAuthProvider를 사용하여 Firebase 로그인 진행
+      // iOS 및 Android(Firebase 지원 시) 모두 동작하는 표준 방식
+      final appleProvider = AppleAuthProvider();
+      return await _auth.signInWithProvider(appleProvider);
+    } catch (e) {
+      debugPrint('애플 로그인 중 오류 발생: $e');
+      // 에러 발생 시 null 반환하여 UI에서 처리하도록 함
+      return null;
+    }
+  }
+
   /// 로그아웃
   Future<void> signOut() async {
     try {
-      await _googleSignIn.signOut();
+      // 구글 로그인이 되어있다면 로그아웃 시도 (에러 무시)
+      try {
+        await _googleSignIn.signOut();
+      } catch (_) {}
+
       await _auth.signOut();
       // authStateChanges 리스너가 자동으로 설정 초기화 처리
     } catch (e) {
@@ -181,7 +200,7 @@ class UserProvider extends ChangeNotifier {
           .doc(userId)
           .set(newSettings.toMap(), SetOptions(merge: true))
           .timeout(const Duration(seconds: 10));
-      
+
       // 스트림이 자동으로 업데이트하므로 여기서는 _showSettings만 변경
       _showSettings = false; // 설정 저장 후 설정 화면 닫기
       notifyListeners();
@@ -203,7 +222,7 @@ class UserProvider extends ChangeNotifier {
           .collection(_collectionName)
           .doc(userId)
           .update({'personalGoal': goal});
-      
+
       // 스트림이 자동으로 업데이트하므로 notifyListeners는 필요 없지만
       // 즉시 반영을 위해 호출
       notifyListeners();
@@ -263,7 +282,7 @@ class UserProvider extends ChangeNotifier {
           .collection(_collectionName)
           .doc(userId)
           .set(updatedSettings.toMap(), SetOptions(merge: true));
-      
+
       // 스트림이 자동으로 업데이트함
       notifyListeners();
     } catch (e) {
@@ -280,11 +299,8 @@ class UserProvider extends ChangeNotifier {
         throw Exception('로그인이 필요합니다');
       }
 
-      await _firestore
-          .collection(_collectionName)
-          .doc(userId)
-          .delete();
-      
+      await _firestore.collection(_collectionName).doc(userId).delete();
+
       _settings = UserSettings.defaultSettings();
       _showSettings = true;
       notifyListeners();
@@ -294,4 +310,3 @@ class UserProvider extends ChangeNotifier {
     }
   }
 }
-

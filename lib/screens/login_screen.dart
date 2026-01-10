@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:lucide_flutter/lucide_flutter.dart';
 import 'package:provider/provider.dart';
+import 'dart:io'; // 플랫폼 확인을 위해 추가 (iOS 체크)
 import '../providers/user_provider.dart';
 
 /// Login Screen
-/// 구글 로그인 화면
+/// 구글 및 애플 로그인 화면
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
 
@@ -15,6 +16,7 @@ class LoginScreen extends StatefulWidget {
 class _LoginScreenState extends State<LoginScreen> {
   bool _isLoading = false;
 
+  // 구글 로그인 핸들러
   Future<void> _handleGoogleSignIn() async {
     setState(() {
       _isLoading = true;
@@ -23,14 +25,38 @@ class _LoginScreenState extends State<LoginScreen> {
     try {
       final userProvider = Provider.of<UserProvider>(context, listen: false);
       await userProvider.signInWithGoogle();
-      
-      // 로그인 성공 시 authStateChanges 리스너가 자동으로 처리하므로
-      // 여기서는 별도 네비게이션 불필요
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('로그인 중 오류가 발생했습니다: $e'),
+            content: Text('구글 로그인 중 오류가 발생했습니다: $e'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+        });
+      }
+    }
+  }
+
+  // [추가됨] 애플 로그인 핸들러
+  Future<void> _handleAppleSignIn() async {
+    setState(() {
+      _isLoading = true;
+    });
+
+    try {
+      final userProvider = Provider.of<UserProvider>(context, listen: false);
+      await userProvider.signInWithApple();
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('애플 로그인 중 오류가 발생했습니다: $e'),
             backgroundColor: Colors.red,
           ),
         );
@@ -184,6 +210,57 @@ class _LoginScreenState extends State<LoginScreen> {
                             ),
                     ),
                   ),
+
+                  // [추가됨] 아이폰일 경우에만 애플 로그인 버튼 표시
+                  if (Platform.isIOS) ...[
+                    const SizedBox(height: 16),
+                    SizedBox(
+                      width: double.infinity,
+                      child: ElevatedButton(
+                        onPressed: _isLoading ? null : _handleAppleSignIn,
+                        style: ElevatedButton.styleFrom(
+                          padding: const EdgeInsets.symmetric(vertical: 16),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(16),
+                          ),
+                          backgroundColor: Colors.black, // 애플은 검은색 배경이 정석
+                          foregroundColor: Colors.white, // 글자색 흰색
+                          elevation: 2,
+                          disabledBackgroundColor: Colors.grey[300],
+                        ),
+                        child: _isLoading
+                            ? const SizedBox(
+                                width: 20,
+                                height: 20,
+                                child: CircularProgressIndicator(
+                                  strokeWidth: 2,
+                                  valueColor: AlwaysStoppedAnimation<Color>(
+                                    Colors.white,
+                                  ),
+                                ),
+                              )
+                            : const Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Icon(
+                                    Icons.apple, // 기본 제공되는 애플 아이콘
+                                    size: 28,
+                                    color: Colors.white,
+                                  ),
+                                  SizedBox(width: 12),
+                                  Text(
+                                    'Apple로 계속하기',
+                                    style: TextStyle(
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.w600,
+                                      color: Colors.white,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                      ),
+                    ),
+                  ],
                 ],
               ),
             ),
@@ -193,4 +270,3 @@ class _LoginScreenState extends State<LoginScreen> {
     );
   }
 }
-
