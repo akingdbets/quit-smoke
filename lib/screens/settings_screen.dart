@@ -5,7 +5,7 @@ import '../providers/user_provider.dart';
 import '../models/user_settings.dart';
 
 /// Settings Screen
-/// 설정 화면 - 개인 정보 수정 및 로그아웃 기능
+/// 설정 화면 - 개인 정보 수정 및 로그아웃(금연 포기) 기능
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key});
 
@@ -379,38 +379,43 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
                   const SizedBox(height: 32),
 
-                  // 저장 버튼
+                  // 저장 버튼 (디자인 수정됨: 그라데이션 풀 채우기)
                   SizedBox(
                     width: double.infinity,
-                    child: ElevatedButton(
-                      onPressed: _isSaving ? null : _handleSave,
-                      style: ElevatedButton.styleFrom(
-                        padding: const EdgeInsets.symmetric(vertical: 20),
-                        shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(16)),
-                        backgroundColor: Colors.transparent,
-                        elevation: 0,
-                      ).copyWith(
-                          backgroundColor:
-                              WidgetStateProperty.all(Colors.transparent)),
-                      child: Container(
-                        decoration: BoxDecoration(
-                          gradient: const LinearGradient(
-                              colors: [Color(0xFF10B981), Color(0xFF14B8A6)]),
-                          borderRadius: BorderRadius.circular(16),
+                    height: 56, // 버튼 높이 고정
+                    child: Container(
+                      decoration: BoxDecoration(
+                        gradient: const LinearGradient(
+                            colors: [Color(0xFF10B981), Color(0xFF14B8A6)]),
+                        borderRadius: BorderRadius.circular(16),
+                        boxShadow: [
+                          BoxShadow(
+                            color: const Color(0xFF10B981).withOpacity(0.3),
+                            blurRadius: 12,
+                            offset: const Offset(0, 6),
+                          ),
+                        ],
+                      ),
+                      child: ElevatedButton(
+                        onPressed: _isSaving ? null : _handleSave,
+                        style: ElevatedButton.styleFrom(
+                          padding: EdgeInsets.zero, // 패딩 제거하여 그라데이션 꽉 채움
+                          backgroundColor: Colors.transparent,
+                          shadowColor: Colors.transparent,
+                          shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(16)),
                         ),
-                        padding: const EdgeInsets.symmetric(vertical: 20),
                         child: Center(
                           child: _isSaving
                               ? const SizedBox(
-                                  width: 20,
-                                  height: 20,
+                                  width: 24,
+                                  height: 24,
                                   child: CircularProgressIndicator(
                                       color: Colors.white, strokeWidth: 2))
                               : const Text('저장하기',
                                   style: TextStyle(
                                       fontSize: 16,
-                                      fontWeight: FontWeight.w600,
+                                      fontWeight: FontWeight.bold,
                                       color: Colors.white)),
                         ),
                       ),
@@ -421,11 +426,40 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   const Divider(),
                   const SizedBox(height: 24),
 
-                  // [추가됨] 로그아웃 버튼
+                  // [수정됨] 금연 포기하기 버튼 (기존 로그아웃)
                   SizedBox(
                     width: double.infinity,
                     child: TextButton(
-                      onPressed: _handleLogout,
+                      onPressed: () {
+                        // 경고 다이얼로그 띄우기
+                        showDialog(
+                          context: context,
+                          builder: (context) => AlertDialog(
+                            title: const Text('정말 포기하시겠습니까?'),
+                            content: const Text(
+                                '지금까지의 노력이 초기화될 수 있습니다.\n정말로 금연을 포기하고 로그아웃 하시겠습니까?'),
+                            shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(16)),
+                            actions: [
+                              TextButton(
+                                onPressed: () => Navigator.pop(context),
+                                child: const Text('취소',
+                                    style: TextStyle(color: Colors.grey)),
+                              ),
+                              TextButton(
+                                onPressed: () {
+                                  Navigator.pop(context); // 다이얼로그 닫기
+                                  _handleLogout(); // 실제 로그아웃 수행
+                                },
+                                child: const Text('포기하기',
+                                    style: TextStyle(
+                                        color: Colors.red,
+                                        fontWeight: FontWeight.bold)),
+                              ),
+                            ],
+                          ),
+                        );
+                      },
                       style: TextButton.styleFrom(
                         padding: const EdgeInsets.symmetric(vertical: 16),
                         foregroundColor: Colors.red[400],
@@ -441,7 +475,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                           Icon(LucideIcons.logOut, size: 20),
                           SizedBox(width: 8),
                           Text(
-                            '로그아웃',
+                            '금연 포기하기',
                             style: TextStyle(
                                 fontSize: 16, fontWeight: FontWeight.w600),
                           ),
